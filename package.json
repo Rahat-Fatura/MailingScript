@@ -1,0 +1,20 @@
+{
+  "name": "mailingscript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "form-data": "^4.0.0",
+    "inquirer": "^8.2.5",
+    "mailgun.js": "^9.3.0",
+    "xlsx": "^0.18.5",
+    "xslx": "^1.0.0"
+  }
+}
