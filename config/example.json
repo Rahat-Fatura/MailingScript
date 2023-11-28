@@ -1,0 +1,5 @@
+{
+    "api_key": "mailgun-apikey",
+    "url": "mg.example.com",
+    "region": "https://api.eu.mailgun.net"
+}

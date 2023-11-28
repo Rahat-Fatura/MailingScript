@@ -1,0 +1,10 @@
+{
+    "from": "{sender_name} Örnek <ornek@example.com>",
+    "to": "{email}",
+    "subject": "Örnek Konu Başlığı",
+    "receiver_name": "{name}",
+    "mail_body": "Örnek Mail İçeriği",
+    "variable_1": "{variable-1}",
+    "variable_2": "{variable-2}",
+    "variable_3": "{variable-3}"
+}
