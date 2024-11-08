@@ -5,10 +5,100 @@ const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 const com = require("commander");
 const inquirer = require("inquirer");
-
+const axios = require("axios");
 const delay = (delayInms) => {
     return new Promise((resolve) => setTimeout(resolve, delayInms));
 };
+
+com.command("whatsapp").description("Send whatsapp message to customers").action(async () => {
+    inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "wp_excel",
+                    message: "Whatsapp Excel Dosyası:",
+                    choices: () => {
+                        const files = fs.readdirSync("excel");
+                        return files;
+                    },
+                },
+                {
+                    type: "list",
+                    name: "wp_template",
+                    message: "Whatsapp Şablonu:",
+                    choices: () => {
+                        const files = fs.readdirSync("templates");
+                        return files;
+                    },
+                },
+             
+            ])   .then(async (answers) => {
+                try {
+                    const wp_template = JSON.parse(
+                        fs.readFileSync(`templates/${answers.wp_template}`, "utf8")
+                    );
+                    if (!wp_template) {
+                        console.log("Whatsapp template dosyası bulunamadı!");
+                        return;
+                    }
+             
+                    let excel_data = utils.xslxToJson(
+                        `excel/${answers.wp_excel}`
+                    );
+                    if (!excel_data) {
+                        console.log("Excel dosyası bulunamadı!");
+                        return;
+                    }
+                    let logs = [];
+                    for await (ex_data of excel_data) {
+                        let template = wp_template
+            
+                        let sending_data = {...template.wp_template}
+                        sending_data.to= `90${ex_data.number}`
+                        sending_data.template.components[0].parameters[0].text=ex_data.header||""
+                        sending_data.template.components[0].parameters[1].text=ex_data.body ||""
+                        sending_data.template.components[0].parameters[2].text=ex_data.footer||""
+                        fs.writeFileSync("data.json", JSON.stringify(sending_data));
+                        console.log(sending_data)
+
+                        try {
+                            const result = await axios.post(template.link,sending_data,{
+                                headers:{
+                                    Authorization: `Bearer ${template.token}`
+                                }
+                            });
+                            try {
+                                // bu kısım whatappın döndüğü webhookları yakalaycak olan servera bildiriyoruz
+                                axios.post("https://whatsapp-controller.rahatyonetim.com/v1/whatsapp//save-id",{
+                                    "wamid":result.data.messages[0].id,
+                                    "url":"script"
+                                },{
+                                    headers:{
+                                        Authorization: `Bearer H#Rs&iy1&x$TLWp#x0JgXf1!x5MT8Wml9yjC4D#J`}})
+                            } catch (error) {
+                                
+                            }
+                            console.log("Whatsapp Mesajı Gönderildi: ", ex_data.number);
+                        } catch (error) {
+                            logs.push({
+                                mail: ex_data.number,
+                                status: error.status,
+                                id: error.id,
+                                message: error.message,
+                                details: error.details,
+                            });
+                        }
+                        await delay(1000);
+                    }
+                    // utils.saveToExcel(
+                    //     `logs/whatsapp/${new Date()}.xlsx`,
+                    //     logs
+                    // );
+                } catch (error) {
+                    console.log("Hata oluştu: ", error);
+                }
+            });
+});
 
 com.command("mail")
     .description("Send mail to customers")
