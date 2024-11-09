@@ -1,0 +1,35 @@
+{
+    "link":"https://graph.facebook.com/v20.0/user_id/messages", 
+    "token":"",
+    "wp_template":{
+        "messaging_product": "whatsapp", // sabit
+        "to": "", // buraya excelden numara verisi gelecek
+        "type": "template",
+        "template": {
+            "name": "artice_with_button",
+            "language": {
+                "code": "tr"
+            },
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {
+                            "type": "text",
+                            "text": "Header" //excelde verilen değer gelecek buraya 
+                        },
+                        {
+                            "type": "text",
+                            "text": "Body" //excelde verilen değer gelecek
+                        },
+                        {
+                            "type": "text",
+                            "text": "Footer" //excelde verilen değer gelecek
+                        }
+                    ]
+                }
+              
+            ]
+        }
+    }
+}
