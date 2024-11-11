@@ -10,6 +10,179 @@ const delay = (delayInms) => {
     return new Promise((resolve) => setTimeout(resolve, delayInms));
 };
 
+function formatPhoneNumber(number) {
+    number = String(number);
+    // Remove any non-numeric characters
+    let formattedNumber = number.replace(/\D/g, '');
+
+    // If it doesn't start with '5', remove characters until it does
+    if (!formattedNumber.startsWith('5')) {
+        // Remove any leading numbers until '5' is the first character
+        formattedNumber = formattedNumber.replace(/^[^5]*/, '');
+    }
+
+    // Check if the length of the formatted number is 10
+    if (formattedNumber.length === 10) {
+        return formattedNumber;
+    } else {
+        // If not 10 characters, return null to prevent sending
+        return null;
+    }
+}
+
+const puppeteer = require('puppeteer');
+com.command("whatsapp-puppeteer")
+  .description("Send WhatsApp message to customers using Puppeteer")
+  .action(async () => {
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "wp_excel",
+          message: "Whatsapp Excel Dosyası:",
+          choices: () => {
+            const files = fs.readdirSync("excel");
+            return files;
+          },
+        }
+      ])
+      .then(async (answers) => {
+        try {
+
+          const excel_data = utils.xslxToJson(`excel/${answers.wp_excel}`);
+          if (!excel_data) {
+            console.log("Excel dosyası bulunamadı!");
+            return;
+          }
+
+          // Initialize Puppeteer and open WhatsApp Web
+          const browser = await puppeteer.launch({ headless: false , args: ['--start-fullscreen'] });
+          
+          const page = await browser.newPage();
+          await page.setViewport({ width: 1920, height: 1080 });
+          await page.goto("https://web.whatsapp.com");
+
+          console.log("Please scan the QR code in WhatsApp Web to continue...");
+          await page.waitForSelector('div[title="Chats"]', { timeout: 60000 })
+          .then(() => console.log("WhatsApp Web opened successfully."))
+          .catch(() => console.log("Login timed out. Please try again."));
+          
+          console.log("WhatsApp Web opened successfully.");
+          
+          // Loop through each contact in the Excel file and send a message
+          for (const ex_data of excel_data) {
+            const number = formatPhoneNumber(ex_data.number);
+            if(!number){
+                console.log("\x1b[31mGecersiz numara: ", ex_data.number, "\x1b[0m");
+                continue;
+            }
+            // Search for the contact
+            await page.click('div[contenteditable="true"][role="textbox"]');
+            await page.keyboard.type(number);
+            await delay(2000); // Wait for search results
+
+                // Check if "No chats, contacts or messages found" message appears
+            const noChatsMessage = await page.$('#pane-side > div > div > span');  // The selector you provided
+            if (noChatsMessage) {
+                const messageText = await page.evaluate(el => el.textContent, noChatsMessage);
+                if (messageText === 'No chats, contacts or messages found') {
+                    console.log(`No contact found for number: ${number}`, "\x1b[0m");  // Log in red color if needed
+                    return; // Skip this contact
+                }
+            }
+            // Click on the first contact
+            await page.keyboard.press('Enter');
+            await delay(2000);
+
+            // Prepare the message with bold header and spacing between parts
+            const header = ex_data.header ? `*${ex_data.header}*` : '';
+            const body = ex_data.body || '';
+            const footer = ex_data.footer || '';
+            const message = `${header}\n\n${body}\n\n${footer}`;
+
+            // Focus on the message input field and type the message
+            await page.waitForSelector('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div._ak1r > div.x9f619.x12lumcd.x1qrby5j.xeuugli.xisnujt.x6prxxf.x1fcty0u.x1fc57z9.xe7vic5.x1716072.xgde2yp.x89wmna.xbjl0o0.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x178xt8z.xm81vs4.xso031l.xy80clv.x1lq5wgf.xgqcy7u.x30kzoy.x9jhf4c.x1a2a7pz.x13w7htt.x78zum5.x96k8nx.xdvlbce.x1ye3gou.xn6708d.x1ok221b.xu06os2.x1i64zmx.x1emribx > div > div.x1hx0egp.x6ikm8r.x1odjw0f.x1k6rcq7.x6prxxf > p', { timeout: 5000 });
+
+            // Type the message line by line, using Shift + Enter for new lines
+            for (const line of message.split('\n')) {
+                await page.type('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div._ak1r > div.x9f619.x12lumcd.x1qrby5j.xeuugli.xisnujt.x6prxxf.x1fcty0u.x1fc57z9.xe7vic5.x1716072.xgde2yp.x89wmna.xbjl0o0.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x178xt8z.xm81vs4.xso031l.xy80clv.x1lq5wgf.xgqcy7u.x30kzoy.x9jhf4c.x1a2a7pz.x13w7htt.x78zum5.x96k8nx.xdvlbce.x1ye3gou.xn6708d.x1ok221b.xu06os2.x1i64zmx.x1emribx > div > div.x1hx0egp.x6ikm8r.x1odjw0f.x1k6rcq7.x6prxxf > p', line);
+                await page.keyboard.down('Shift');
+                await page.keyboard.press('Enter');
+                await page.keyboard.up('Shift');
+            }
+
+            // Send the message by pressing Enter
+            await page.keyboard.press('Enter'); // Send the message
+            console.log(`Message sent to ${number}`);
+
+
+            
+            // Click on the survey button (to start interacting with the survey)
+            await page.waitForSelector('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span');
+            await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span'); // Click to open survey
+
+            await delay(1000); // Wait for survey to load
+
+            // Click on the specific option (for example, the fifth one in the list)
+            await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > span > div > ul > div > div:nth-child(5) > li > div');
+
+            await delay(300); // Wait for the selection to be made
+
+            // Now type the message "Bu mesajı faydalı buldunuz mu?"
+            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div._alcf._alcm > div._alc_._ald3 > div._aldd > div > div > p', 'Bu mesajı faydalı buldunuz mu?');
+            await delay(300);
+
+            // Wait for the element to appear and click on it before typing
+            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+
+            // Type "Broşür İstiyorum"
+            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Broşür İstiyorum');
+
+            // Wait and click on the second option
+            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
+            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
+
+            // Type "Fiyat İstiyorum"
+            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p', 'Fiyat İstiyorum');
+
+            // Wait and click on the third option
+            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+
+            // Type "İstemiyorum"
+            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'İstemiyorum');
+
+            // Wait and click on the fourth option
+            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+
+            // Type "Beni Arayın"
+            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Beni Arayın');
+
+            // Delay before moving to the next contact
+            await delay(1000);
+
+
+            // Click on the element to finish the survey and submit the response
+            await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x78zum5.x6s0dn4.xh8yej3.x1jchvi3.xdod15v.xx6bls6 > div > div");
+            await delay(500);
+            // Click on the element to finish the survey and submit the response
+            await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.xh8yej3.x78zum5.x13a6bvl.xwvwv9b.x1jn9dgz.x11fxgd9 > div > span");
+
+            console.log("Survey completed and response sent.");
+            // Delay before moving to the next contact
+            await delay(1000);
+          }
+
+          console.log("All messages have been sent.");
+          await browser.close();
+        } catch (error) {
+          console.log("Hata oluştu: ", error);
+        }
+      });
+  });
+
 com.command("whatsapp").description("Send whatsapp message to customers").action(async () => {
     inquirer
             .prompt([
