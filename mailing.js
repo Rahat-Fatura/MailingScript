@@ -71,12 +71,17 @@ com.command("whatsapp-puppeteer")
           
           // Loop through each contact in the Excel file and send a message
           for (const ex_data of excel_data) {
+            try {
+                
+          
             const number = formatPhoneNumber(ex_data.number);
             if(!number){
                 console.log("\x1b[31mGecersiz numara: ", ex_data.number, "\x1b[0m");
                 continue;
             }
             // Search for the contact
+            await page.waitForSelector('div[contenteditable="true"][role="textbox"]', { timeout: 2000 });
+            
             await page.click('div[contenteditable="true"][role="textbox"]');
             await page.keyboard.type(number);
             await delay(2000); // Wait for search results
@@ -86,8 +91,12 @@ com.command("whatsapp-puppeteer")
             if (noChatsMessage) {
                 const messageText = await page.evaluate(el => el.textContent, noChatsMessage);
                 if (messageText === 'No chats, contacts or messages found') {
-                    console.log(`No contact found for number: ${number}`, "\x1b[0m");  // Log in red color if needed
-                    return; // Skip this contact
+                // Get the length of the number typed and delete it character by character
+                const numberLength = number.length;
+                for (let i = 0; i < numberLength; i++) {
+                    await page.keyboard.press('Backspace');  // Press 'Backspace' multiple times to clear the input
+                }
+                    continue;                                 
                 }
             }
             // Click on the first contact
@@ -172,7 +181,10 @@ com.command("whatsapp-puppeteer")
 
             console.log("Survey completed and response sent.");
             // Delay before moving to the next contact
-            await delay(1000);
+            await delay(1000);  } 
+            catch (error) {
+                console.log(ex_data.number+ " Numarasında Hata oluştu: ", error);
+            }
           }
 
           console.log("All messages have been sent.");
