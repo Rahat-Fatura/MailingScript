@@ -90,7 +90,7 @@ com.command("whatsapp-puppeteer")
             const noChatsMessage = await page.$('#pane-side > div > div > span');  // The selector you provided
             if (noChatsMessage) {
                 const messageText = await page.evaluate(el => el.textContent, noChatsMessage);
-                if (messageText === 'No chats, contacts or messages found') {
+                if (messageText === 'No chats, contacts or messages found' || messageText.includes("bulunamadı") ) {
                 // Get the length of the number typed and delete it character by character
                 const numberLength = number.length;
                 for (let i = 0; i < numberLength; i++) {
@@ -124,60 +124,60 @@ com.command("whatsapp-puppeteer")
             await page.keyboard.press('Enter'); // Send the message
             console.log(`Message sent to ${number}`);
 
+        //    //anket ekleme kısmı
+             
+        //     // Click on the survey button (to start interacting with the survey)
+        //     await page.waitForSelector('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span');
+        //     await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span'); // Click to open survey
 
-            
-            // Click on the survey button (to start interacting with the survey)
-            await page.waitForSelector('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span');
-            await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > div > div > span'); // Click to open survey
+        //     await delay(1000); // Wait for survey to load
 
-            await delay(1000); // Wait for survey to load
+        //     // Click on the specific option (for example, the fifth one in the list)
+        //     await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > span > div > ul > div > div:nth-child(5) > li > div');
 
-            // Click on the specific option (for example, the fifth one in the list)
-            await page.click('#main > footer > div.x1n2onr6.xhtitgo.x9f619.x78zum5.x1q0g3np.xuk3077.x193iq5w.x122xwht.x1bmpntp.xs9asl8.x1swvt13.x1pi30zi.xnpuxes.copyable-area > div > span > div > div.x9f619.x78zum5.x6s0dn4.xl56j7k.x1ofbdpd._ak1m > div.x78zum5.x6s0dn4 > div > span > div > ul > div > div:nth-child(5) > li > div');
+        //     await delay(300); // Wait for the selection to be made
 
-            await delay(300); // Wait for the selection to be made
+        //     // Now type the message "Bu mesajı faydalı buldunuz mu?"
+        //     await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div._alcf._alcm > div._alc_._ald3 > div._aldd > div > div > p', 'Bu mesajı faydalı buldunuz mu?');
+        //     await delay(300);
 
-            // Now type the message "Bu mesajı faydalı buldunuz mu?"
-            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div._alcf._alcm > div._alc_._ald3 > div._aldd > div > div > p', 'Bu mesajı faydalı buldunuz mu?');
-            await delay(300);
+        //     // Wait for the element to appear and click on it before typing
+        //     await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
 
-            // Wait for the element to appear and click on it before typing
-            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
-            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     // Type "Broşür İstiyorum"
+        //     await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Broşür İstiyorum');
 
-            // Type "Broşür İstiyorum"
-            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(1) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Broşür İstiyorum');
+        //     // Wait and click on the second option
+        //     await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
+        //     await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
 
-            // Wait and click on the second option
-            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
-            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p');
+        //     // Type "Fiyat İstiyorum"
+        //     await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p', 'Fiyat İstiyorum');
 
-            // Type "Fiyat İstiyorum"
-            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(2) > div > div > div > div > div._alc_._ald3 > div > div > div > p', 'Fiyat İstiyorum');
+        //     // Wait and click on the third option
+        //     await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
 
-            // Wait and click on the third option
-            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
-            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     // Type "İstemiyorum"
+        //     await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'İstemiyorum');
 
-            // Type "İstemiyorum"
-            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(3) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'İstemiyorum');
+        //     // Wait and click on the fourth option
+        //     await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
 
-            // Wait and click on the fourth option
-            await page.waitForSelector('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
-            await page.click('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p');
+        //     // Type "Beni Arayın"
+        //     await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Beni Arayın');
 
-            // Type "Beni Arayın"
-            await page.type('#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x1odjw0f.xr9ek0c.xyorhqc > div > div:nth-child(4) > div > div > div > div > div._alc_._ald3 > div._aldd > div > div > p', 'Beni Arayın');
-
-            // Delay before moving to the next contact
-            await delay(1000);
+        //     // Delay before moving to the next contact
+        //     await delay(1000);
 
 
-            // Click on the element to finish the survey and submit the response
-            await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x78zum5.x6s0dn4.xh8yej3.x1jchvi3.xdod15v.xx6bls6 > div > div");
-            await delay(500);
-            // Click on the element to finish the survey and submit the response
-            await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.xh8yej3.x78zum5.x13a6bvl.xwvwv9b.x1jn9dgz.x11fxgd9 > div > span");
+        //     // Click on the element to finish the survey and submit the response
+        //     await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x6ikm8r.x1odjw0f.x1hc1fzr.x1tkvqr7 > div > div.x78zum5.x6s0dn4.xh8yej3.x1jchvi3.xdod15v.xx6bls6 > div > div");
+        //     await delay(500);
+        //     // Click on the element to finish the survey and submit the response
+        //     await page.click("#app > div > span:nth-child(3) > div > div > div > div > div > div > div > div > div.xh8yej3.x78zum5.x13a6bvl.xwvwv9b.x1jn9dgz.x11fxgd9 > div > span");
 
             console.log("Survey completed and response sent.");
             // Delay before moving to the next contact
